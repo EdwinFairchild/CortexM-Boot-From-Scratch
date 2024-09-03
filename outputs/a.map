@@ -1,0 +1,153 @@
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAM              0x20000000         0x00009000         xrw
+FLASH            0x08000000         0x00020000         xr
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD main.o
+LOAD myStartUp.o
+                0x20009000                        _top_of_ram_stack_start = (ORIGIN (RAM) + LENGTH (RAM))
+                0x00000200                        _Min_Heap_Size = 0x200
+                0x00000400                        _Min_Stack_Size = 0x400
+
+.isr_vector     0x08000000       0xbc
+                0x08000000                        . = ALIGN (0x4)
+ *(.isr_vector)
+ .isr_vector    0x08000000       0xbc myStartUp.o
+                0x08000000                vector_table
+                0x080000bc                        . = ALIGN (0x4)
+
+.text           0x080000bc       0x30
+                0x080000bc                        . = ALIGN (0x4)
+ *(.text)
+ .text          0x080000bc        0xc main.o
+                0x080000bc                main
+ .text          0x080000c8       0x24 myStartUp.o
+                0x080000c8                Reset_Handler
+                0x080000e0                DebugMon_Handler
+                0x080000e0                TIM1_CC_IRQHandler
+                0x080000e0                HardFault_Handler
+                0x080000e0                ADC1_COMP_IRQHandler
+                0x080000e0                SysTick_Handler
+                0x080000e0                PVD_IRQHandler
+                0x080000e0                PendSV_Handler
+                0x080000e0                NMI_Handler
+                0x080000e0                I2C1_IRQHandler
+                0x080000e0                TIM7_LPTIM2_IRQHandler
+                0x080000e0                RTC_TAMP_IRQHandler
+                0x080000e0                UsageFault_Handler
+                0x080000e0                SPI1_IRQHandler
+                0x080000e0                EXTI2_3_IRQHandler
+                0x080000e0                I2C2_IRQHandler
+                0x080000e0                TIM17_IRQHandler
+                0x080000e0                USART3_4_LPUART1_IRQHandler
+                0x080000e0                TIM16_IRQHandler
+                0x080000e0                TIM3_IRQHandler
+                0x080000e0                EXTI4_15_IRQHandler
+                0x080000e0                RCC_IRQHandler
+                0x080000e0                DMA1_Channel1_IRQHandler
+                0x080000e0                Default_Handler
+                0x080000e0                CEC_IRQHandler
+                0x080000e0                TIM14_IRQHandler
+                0x080000e0                TIM15_IRQHandler
+                0x080000e0                EXTI0_1_IRQHandler
+                0x080000e0                SPI2_IRQHandler
+                0x080000e0                MemManage_Handler
+                0x080000e0                SVC_Handler
+                0x080000e0                TIM6_DAC_LPTIM1_IRQHandler
+                0x080000e0                WWDG_IRQHandler
+                0x080000e0                TIM2_IRQHandler
+                0x080000e0                DMA1_Ch4_7_DMAMUX1_OVR_IRQHandler
+                0x080000e0                DMA1_Channel2_3_IRQHandler
+                0x080000e0                UCPD1_2_IRQHandler
+                0x080000e0                USART2_IRQHandler
+                0x080000e0                FLASH_IRQHandler
+                0x080000e0                BusFault_Handler
+                0x080000e0                USART1_IRQHandler
+                0x080000e0                TIM1_BRK_UP_TRG_COM_IRQHandler
+ *(.text*)
+ *(.glue_7)
+ .glue_7        0x080000ec        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x080000ec        0x0 linker stubs
+                0x080000ec                        . = ALIGN (0x4)
+
+.vfp11_veneer   0x080000ec        0x0
+ .vfp11_veneer  0x080000ec        0x0 linker stubs
+
+.v4_bx          0x080000ec        0x0
+ .v4_bx         0x080000ec        0x0 linker stubs
+
+.iplt           0x080000ec        0x0
+ .iplt          0x080000ec        0x0 myStartUp.o
+
+.rodata         0x080000ec       0x1c
+                0x080000ec                        . = ALIGN (0x4)
+ *(.rodata)
+ .rodata        0x080000ec       0x1a main.o
+                0x080000ec                dummy1
+                0x080000f0                dummy2
+                0x080000f4                pi
+                0x080000f8                msg
+ *(.rodata*)
+                0x08000108                        . = ALIGN (0x4)
+ *fill*         0x08000106        0x2 
+
+.rel.dyn        0x08000108        0x0
+ .rel.iplt      0x08000108        0x0 myStartUp.o
+
+.data           0x20000000        0x0 load address 0x08000108
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _data = .
+ *(.data)
+ .data          0x20000000        0x0 main.o
+ .data          0x20000000        0x0 myStartUp.o
+ *(.data*)
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _edata = .
+                0x08000108                        _sidata = LOADADDR (.data)
+
+.igot.plt       0x20000000        0x0 load address 0x08000108
+ .igot.plt      0x20000000        0x0 myStartUp.o
+
+.bss            0x20000000        0x0 load address 0x08000108
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _bss = .
+ *(.bss)
+ .bss           0x20000000        0x0 main.o
+ .bss           0x20000000        0x0 myStartUp.o
+ *(.bss*)
+ *(COMMON)
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _ebss = .
+
+._user_heap_stack
+                0x20000000      0x600 load address 0x08000108
+                0x20000000                        . = ALIGN (0x8)
+                [!provide]                        PROVIDE (end = .)
+                [!provide]                        PROVIDE (_end = .)
+                0x20000200                        . = (. + _Min_Heap_Size)
+ *fill*         0x20000000      0x200 
+                0x20000600                        . = (. + _Min_Stack_Size)
+ *fill*         0x20000200      0x400 
+                0x20000600                        . = ALIGN (0x8)
+OUTPUT(boot.elf elf32-littlearm)
+LOAD linker stubs
+
+.comment        0x00000000       0x39
+ .comment       0x00000000       0x39 main.o
+                                 0x3a (size before relaxing)
+ .comment       0x00000039       0x3a myStartUp.o
+
+.ARM.attributes
+                0x00000000       0x2a
+ .ARM.attributes
+                0x00000000       0x2a main.o
+ .ARM.attributes
+                0x0000002a       0x2a myStartUp.o
