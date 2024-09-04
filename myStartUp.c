@@ -11,6 +11,8 @@ extern uint32_t _ebss;
 extern void main(void);
 void Reset_Handler(void);
 void Default_Handler(void);
+
+
 // All handlers will default to Default_Handler until they are reimplemented in the application code
 void NMI_Handler(void)                          __attribute__((weak, alias("Default_Handler")));
 void HardFault_Handler(void)                    __attribute__((weak, alias("Default_Handler")));
@@ -105,41 +107,44 @@ uint32_t vector_table[] __attribute__((section(".isr_vector"))) = {
     (uint32_t)&CEC_IRQHandler                     /* CEC                          */
 };
 
-void Reset_Handler(void)
-{
-
-    // Copy data from Flash to RAM
-    uint32_t size = (uint32_t)&_edata - (uint32_t)&_data;
-    uint8_t *pDst = (uint8_t *)&_data; // pointer to start of RAM
-    uint8_t *pSrc = (uint8_t *)&_sidata; // pointer to start of Flash
-
-    for (uint32_t i = 0; i < size; i++)
+    void Reset_Handler(void)
     {
-        *pDst++ = *pSrc++;
+        // Copy .data section from Flash to RAM
+        uint32_t size = (uint32_t)&_edata - (uint32_t)&_data;
+        uint8_t *pDst = (uint8_t *)&_data; // pointer to start of RAM
+        uint8_t *pSrc = (uint8_t *)&_sidata; // pointer to start of Flash
+
+        for (uint32_t i = 0; i < size; i++)
+        {
+            *pDst++ = *pSrc++;
+        }
+
+        // Initialize the .bss section to zero in RAM
+        size = (uint32_t)&_ebss - (uint32_t)&_bss;
+        pDst = (uint8_t *)&_bss;
+
+        for (uint32_t i = 0; i < size; i++)
+        {
+            *pDst++ = 0;
+        }
+
+        // do other initialization if your application requires it before you get to main
+        // typically bootloader stuff, other checks, etc.
+
+        // Call main() function
+        main();
+
+        while (1)
+        {
+            //should never get here unless something went wrong
+        }
     }
 
-    // Initialize the .bss section to zero in RAM
-    size = (uint32_t)&_ebss - (uint32_t)&_bss;
-    pDst = (uint8_t *)&_bss;
-
-    for (uint32_t i = 0; i < size; i++)
+    void Default_Handler(void)
     {
-        *pDst++ = 0;
+        // handle this how ever you want
+        while (1)
+        {
+        }
     }
 
-    // Call main() function
-    main();
-
-    while (1)
-    {
-        //should never get here unless something went wrong
-    }
-}
-
-void Default_Handler(void)
-{
-    
-    while (1)
-    {
-    }
-}
