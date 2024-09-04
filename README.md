@@ -1,5 +1,5 @@
 # Compiling and Linking for ARM Cortex M0+
-[EdwinFairchild.com Tutorial](https://www.edwinfairchild.com/2022/04/no-ide-for-me.html)
+[See tutorial @ EdwinFairchild.com](https://www.edwinfairchild.com/2022/04/no-ide-for-me.html)
 To compile the `main.c` file located in the `src` directory and the `myStartUp.c` file in root directory, follow the steps below:
 
 1. Open a terminal and navigate to the project directory.
